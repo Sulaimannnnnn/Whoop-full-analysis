@@ -95,3 +95,9 @@ This repository contains no health data. Your data is analysed inside your own s
 ---
 
 Icons in the visual brief: [Feather](https://feathericons.com) (MIT).
+
+---
+
+## License · الترخيص
+
+[MIT](LICENSE) — حر الاستخدام والتعديل والنشر مع إبقاء إشعار الحقوق. Free to use, modify and share, provided the copyright notice is kept.
