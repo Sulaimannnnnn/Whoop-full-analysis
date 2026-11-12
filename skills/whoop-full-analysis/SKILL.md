@@ -1,6 +1,6 @@
 ---
 name: "whoop-full-analysis"
-description: "تحليل كامل لبيانات ساعة WHOOP (ملف تصدير ZIP/CSV، لقطات شاشة، PDF) بدون تجاوز شيء — التعافي، HRV، النوم، الإجهاد، التمارين، اليوميات، مربوطة ومشروحة بعربية واضحة. استعمله لأي بيانات WHOOP / ووب."
+description: "تحليل كامل لبيانات ساعة WHOOP (ملف تصدير ZIP/CSV، لقطات شاشة، PDF) بدون تجاوز شيء — التعافي، HRV، النوم، الإجهاد، التمارين، اليوميات، مربوطة ومشروحة بلغة واضحة، بالعربية أو الإنجليزية. استعمله لأي بيانات WHOOP / ووب. Full WHOOP data analysis (ZIP/CSV export, screenshots, PDF): Recovery, HRV, sleep, strain, workouts and journal, linked and explained in plain Arabic or English."
 ---
 
 # WHOOP full analysis — تحليل بيانات WHOOP الكامل
@@ -10,7 +10,19 @@ The user is not a health or data specialist. They set four conditions, and every
 1. **Nothing ignored** — every file, column and day they send is used or explicitly accounted for, and the report proves it.
 2. **Linked, not listed** — show how the metrics drive each other (sleep → Recovery, effort → next morning, habits → body), not one metric at a time.
 3. **Exact** — every number comes from code run on their raw data. Never estimate, eyeball (including off a chart), or fill gaps from general knowledge.
-4. **Explained** — plain Arabic a non-specialist understands: what each number means for *them*, why it moved, and what to do.
+4. **Explained** — plain language a non-specialist understands (Arabic or English, see «Language»): what each number means for *them*, why it moved, and what to do.
+
+## Language — اللغة
+
+Two languages, same analysis. Write in the language the user writes in: Arabic (the default, and the one to use when unsure) or English. Everything the user reads follows that one language — the report, the chat reply, the visual brief, the profile page and the morning check — and the two are not mixed: no Arabic section titles in an English report, and no English sentences in an Arabic one beyond WHOOP's own terms. If the user asks for both («بلغتين» / "both languages"), deliver the full report and the brief twice, once per language, with identical numbers.
+
+For English, keep every rule in this skill and translate its Arabic wording as you go:
+
+- **Evidence words:** «علاقة واضحة» → "clear link", «إشارة محتملة» → "possible signal", «تظهر بين الفترات فقط» → "shows between periods only", «ما ظهرت علاقة واضحة» → "no clear link", «البيانات ما تكفي للحكم» → "not enough data to judge".
+- **Report sections, same order:** 1. The one-minute summary · 2. What I received from your data · 3. Your normal · 4. What moves your Recovery · 5. Your sleep in detail · 6. Your effort and workouts · 7. Your habits (Journal) · 8. Your week, Ramadan and travel · 9. Days your body was under stress · 10. The overall trend · 11. What WHOOP doesn't tell you · 12. Your action plan, with "Your top 3 levers" and the "14-day protocol" · 13. Quick glossary.
+- **Glossary and data-export steps:** give the same explanations in plain English.
+- **Visual brief:** add `"lang": "en"` to `brief.json` and write it in English; the chips, legend and layout switch to English, left to right.
+- **Profile page:** add `"lang": "en"` to `profile.json` before `--page`; its artifact title is then «WHOOP - My baseline (<name>)», and the morning check looks for either title.
 
 ## 1. Get the right data
 
@@ -26,7 +38,7 @@ The user is not a health or data specialist. They set four conditions, and every
    ```bash
    python3 - <<'EOF'
    import glob, os, re
-   want = {"whoop-full-analysis engine v1.1": "whoop.py", "whoop-full-analysis insights v1.1": "insights.py", "whoop-full-analysis brief v1.1": "brief.py"}
+   want = {"whoop-full-analysis engine v1.1": "whoop.py", "whoop-full-analysis insights v1.2": "insights.py", "whoop-full-analysis brief v1.2": "brief.py"}
    for p in glob.glob("/mnt/skills/**/SKILL.md", recursive=True) + glob.glob(os.path.expanduser("~/.claude/skills/**/SKILL.md"), recursive=True):
        blocks = re.findall(r"```python\n(.*?)\n```", open(p, encoding="utf-8", errors="ignore").read(), re.S)
        got = {fn: b for tag, fn in want.items() for b in blocks if tag in b}
@@ -39,7 +51,7 @@ The user is not a health or data specialist. They set four conditions, and every
    EOF
    ```
 
-   If it is not on disk, write the code blocks to `whoop.py`, `insights.py` and `brief.py` exactly as given. Reuse existing files only if their second lines are `# whoop-full-analysis engine v1.1`, `# whoop-full-analysis insights v1.1` and `# whoop-full-analysis brief v1.1`; older versions cannot read Arabic exports or long gaps correctly.
+   If it is not on disk, write the code blocks to `whoop.py`, `insights.py` and `brief.py` exactly as given. Reuse existing files only if their second lines are `# whoop-full-analysis engine v1.1`, `# whoop-full-analysis insights v1.2` and `# whoop-full-analysis brief v1.2`; older versions cannot read Arabic exports or long gaps correctly.
 2. Run the engine on all the WHOOP files at once, then the insights on its output:
    `python3 whoop.py <the ZIP, or every CSV, or their folder> --out whoop_out --weekend Fri,Sat`
    `python3 insights.py --out whoop_out`
@@ -90,9 +102,9 @@ It writes to `whoop_out/`: `summary.md` (every computed number, 15 sections), `c
 - **Journal questions that don't fit.** A question that cannot apply to the user (for example a menstrual-cycle question in a man's journal), one with always the same answer, or one never answered adds nothing: say so in one neutral line and suggest removing or answering it honestly each day. Do not guess why it was answered.
 - **Personal journal questions** (sexual activity, alcohol and the like): report them in the Journal table with the same neutral verdict words and nothing more — no judgement, no advice beyond the data. Leave them out of day-by-day lists (stress episodes, best and worst mornings) and out of the chat reply unless the user asks.
 
-## 5. Write the report — Arabic, for a non-specialist
+## 5. Write the report — for a non-specialist, in the user's language
 
-Tone: clear, warm and direct; a light Gulf flavour is fine. Keep WHOOP's English terms (Recovery, HRV, Strain…) and explain each in Arabic the first time. Round sensibly. Every number gets: the value → what it means → how it compares with the user's own normal (and WHOOP's band when there is one). Short paragraphs, small tables, no number repeated without a reason.
+Tone: clear, warm and direct; in Arabic a light Gulf flavour is fine. Keep WHOOP's English terms (Recovery, HRV, Strain…) and explain each in Arabic the first time. Round sensibly. Every number gets: the value → what it means → how it compares with the user's own normal (and WHOOP's band when there is one). Short paragraphs, small tables, no number repeated without a reason.
 
 Use these sections in this order. Every section of `summary.md` must land somewhere; if one has nothing notable, say so in a line instead of skipping it.
 
@@ -116,7 +128,7 @@ Use these sections in this order. Every section of `summary.md` must land somewh
 
 ## 6. Deliver
 
-- **The full report** (all 13 sections) goes into a document the user can keep: use the environment's document or artifact type if it has one; otherwise build one self-contained HTML file (Arabic, `dir="rtl"`, charts embedded as base64 images) and share it.
+- **The full report** (all 13 sections) goes into a document the user can keep: use the environment's document or artifact type if it has one; otherwise build one self-contained HTML file (`dir="rtl"` for Arabic, charts embedded as base64 images) and share it.
 - **The visual brief** (section 7) goes with every full report: send `brief.png`, plus `brief.pdf` when they want to print or forward it.
 - **The profile page** for the morning check (section 8): add `name` and the plan's actions as short lines (`plan`) to `profile.json`, drop personal journal questions from its `habits`, run `python3 insights.py --out whoop_out --page`, and publish `profile.html` as a private artifact titled «WHOOP — ملفي الأساسي (<name>)»; when one already exists (find it by title with the artifact tools), republish that one instead of making another. Tell the user in one line that the morning check reads it.
 - **Charts:** when the document can draw live charts from data rows, give it the rows for the 2–3 charts that carry the main findings (for example Recovery by hours-asleep band, the monthly HRV line split by wear period) instead of PNGs; otherwise embed the engine's PNGs. The engine's charts have English titles; describe each one in Arabic by what it shows.
@@ -130,7 +142,7 @@ A one-page summary the user can glance at on a phone or forward: clean design, o
 
 - **What it must carry:** the takeaway in one sentence; 3–4 key numbers for the last 30 days against the user's own normal (Recovery, HRV, sleep, resting HR, with WHOOP's colour word when there is one); one card per main topic — sleep, the clearest habit link, any decline or stress period, the week pattern, effort and workouts, Journal habits — each with one big number, at most 3 short bullets and its evidence word; the plan (at most 5 actions, each with its reason in the user's numbers); the 1–2 strongest hidden patterns from `insights.md`; «أقوى 3 روافع» as one wide card with bars (the estimated Recovery points of each) when any are ranked; any point from «Health and safety»; and a footer pointing to the full report. Same numbers and evidence words as the report, no p-values, no personal journal questions.
 - **«What WHOOP doesn't tell me»:** when the user asks for it, make a second brief from `insights.md` alone, rendered with `--out whoop_out/hidden` so it does not replace the main one: the drift as 4 KPIs (last 30 days against the best 30 days of the latest wear period), one card per pattern that holds (bars for sections 3 and 10), and a 3-step plan.
-- **Write `brief.json`** in Arabic in the user's dialect, then run `python3 brief.py brief.json --out whoop_out`. It writes `brief.png` (phone image, sharp at 2×), `brief.pdf` and `brief.html`. The first run fetches the IBM Plex Sans Arabic font through npm and caches it (`--no-fetch` skips that, `--font FILE` uses your own); without it the system font is used. Without Playwright's Chromium it writes only `brief.html` and says so.
+- **Write `brief.json`** in the user's language (Arabic in their dialect, or English with `"lang": "en"`), then run `python3 brief.py brief.json --out whoop_out`. It writes `brief.png` (phone image, sharp at 2×), `brief.pdf` and `brief.html`. The first run fetches the IBM Plex Sans Arabic font through npm and caches it (`--no-fetch` skips that, `--font FILE` uses your own); without it the system font is used. Without Playwright's Chromium it writes only `brief.html` and says so.
 - **Look at `brief.png` before sending** (in halves if it is tall): nothing cut off, numbers and arrows in the right order, no card far longer than the one beside it. Fix the spec and render again.
 
 ```json
@@ -152,7 +164,7 @@ When the user sends a screenshot of today's WHOOP screen, or asks «فحص ال�
 
 1. **Read the screenshot.** Copy every number you can actually see: Recovery %, HRV, resting HR, hours of sleep, sleep performance, Day Strain so far, sleep need, and the date. Never guess a number that is not visible; if the date is not today, say so.
 2. **Get their normal**, first that exists: `whoop_out/profile.json` in this session; their profile page (find the artifact titled «WHOOP — ملفي الأساسي» with the artifact tools and read the JSON in its `<script id="whoop-profile">`); the last visual brief, if they send it (its KPIs carry their normal); otherwise WHOOP's bands only, and say once that one full export makes the check personal.
-3. **Reply in at most 6 short lines**, in their dialect:
+3. **Reply in at most 6 short lines**, in their language (their dialect in Arabic):
    - Today against their normal: «ريكفري اليوم 48% — أقل من معدلك (56%)» with WHOOP's colour word; HRV and resting HR the same way when visible. Inside their usual range (`p25`–`p75`) is normal.
    - Why: from what is visible plus their own patterns in the profile — last night's hours against their sweet spot, a second short night in a row, a short night two days ago, a clear journal habit (ask only when one fits and they have not said: «أكلت متأخر أمس؟»). Use the evidence words; never invent a cause.
    - Today's plan: effort by colour — green: a hard session is fine; yellow: moderate (Day Strain about 10–13); red: light (under 10). Tonight's bedtime from their plan, or the time that gives their sweet-spot hours before their usual wake time, and the last meal 3 hours before it when late eating is one of their clear habits.
@@ -1215,7 +1227,7 @@ if __name__ == "__main__":
 
 ```python
 #!/usr/bin/env python3
-# whoop-full-analysis insights v1.1
+# whoop-full-analysis insights v1.2
 # Patterns the WHOOP app does not spell out, from the engine's daily table: python3 insights.py --out whoop_out
 # Reads whoop_out/daily_enriched.csv (+ findings.json); writes insights.md, insights.json, profile.json and profile.html (the user's normal, for the morning check)
 # After editing profile.json (name, plan): python3 insights.py --out whoop_out --page  rebuilds profile.html only
@@ -1290,8 +1302,49 @@ PCSS = ("body{margin:0;background:#f9f9f7;color:#0b0b0b;font:16px/1.7 'IBM Plex 
         "td:not(:first-child){font-variant-numeric:tabular-nums;white-space:nowrap}ul,ol{padding-inline-start:20px}li{margin:4px 0}")
 
 
+NAMES_EN = dict(recovery=("Recovery", "%", 0), hrv=("HRV", " ms", 0), rhr=("Resting HR", " bpm", 0), asleep_h=("Hours asleep", " h", 1),
+                sleep_perf=("Sleep performance", "%", 0), strain=("Day Strain", "", 1), resp=("Respiratory rate", "", 1))
+VW_EN = {"clear": "clear link", "possible": "possible signal", "between periods only": "between periods only"}
+
+
+def page_en(prof, path):  # the same page in English, when profile.json has "lang": "en"
+    e = lambda s: html.escape(str(s), quote=False); v = lambda x, d, u: f(x, d) + u if fin(x) else "-"
+    N = prof.get("normal", {}); L3 = prof.get("last30", {}); vw = lambda k: VW_EN.get(k, k)
+    rows = "".join(f"<tr><td>{n}</td><td>{v(N[k]['mean'], d, u)}</td><td>{f(N[k]['p25'], d)} to {v(N[k]['p75'], d, u)}</td><td>{v(L3.get(k), d, u)}</td></tr>"
+                   for k, (n, u, d) in NAMES_EN.items() if k in N)
+    li, b = [], prof.get("bedtime_median") or {}
+    if b:
+        li.append(f"Usual sleep: work nights {b.get('work')}, weekends {b.get('weekend')}, wake {b.get('wake_work')}")
+    s = prof.get("recovery_per_extra_hour") or {}
+    if fin(s.get("same_month")):
+        li.append(f"Each extra hour of sleep is about {sg(s['same_month'], 0)} Recovery points ({vw(s.get('verdict'))})")
+    if prof.get("sleep_sweet_spot"):
+        li.append(f"Most of the benefit of sleep is reached at {prof['sleep_sweet_spot']['band']} hours")
+    c = prof.get("carry_over") or {}
+    if fin(c.get("recovery")):
+        li.append(f"A night under 6 hours costs the second morning about {sg(c['recovery'], 0)} points ({vw(c.get('verdict'))})")
+    bb = prof.get("bounce_back") or {}
+    if fin(bb.get("median_days")):
+        li.append(f"A red morning usually clears after {f(bb['median_days'], 0)} day(s)")
+    li += [f"{h['question']}: {sg(h['recovery_same_month'], 0)} Recovery points the next morning (inside the same month, {vw(h['verdict'])})"
+           for h in prof.get("habits", []) if fin(h.get("recovery_same_month"))]
+    plan = "".join(f"<li>{e(x)}</li>" for x in prof.get("plan", []))
+    js = json.dumps(prof, ensure_ascii=False, default=str).replace("</", "<\\/")
+    title = "WHOOP - My baseline" + (f" ({prof['name']})" if prof.get("name") else "")
+    doc = (f'<!DOCTYPE html><html lang="en" dir="ltr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{e(title)}</title>'
+           f'<script type="application/json" id="whoop-profile">{js}</script><style>{PCSS}</style></head><body><main>'
+           f'<h1>{e(title)}</h1><p class="sub">Your averages in the latest wear period ({e(prof.get("latest_period"))}). The morning check compares your day with them.</p>'
+           f'<table><thead><tr><th>Metric</th><th>Your average</th><th>Your usual range</th><th>Last 30 days</th></tr></thead><tbody>{rows}</tbody></table>'
+           f'<h2>Your patterns</h2><ul>{"".join(f"<li>{e(x)}</li>" for x in li)}</ul>' + (f"<h2>Your plan</h2><ol>{plan}</ol>" if plan else "")
+           + f'<p class="foot">Computed from your data ({e(prof.get("made_from"))}). Updated with every new full analysis.</p></main></body></html>')
+    with open(path, "w", encoding="utf-8") as fh:
+        fh.write(doc)
+
+
 def page(prof, path):  # small private page the morning check reads in later chats (the JSON sits in <script id="whoop-profile">)
     e = lambda s: html.escape(str(s), quote=False); v = lambda x, d, u: f(x, d) + u if fin(x) else "-"
+    if str(prof.get("lang", "ar")).lower().startswith("en"):
+        return page_en(prof, path)
     N, L3 = prof.get("normal", {}), prof.get("last30", {})
     rows = "".join(f"<tr><td>{n}</td><td>{v(N[k]['mean'], d, u)}</td><td>{f(N[k]['p25'], d)} – {v(N[k]['p75'], d, u)}</td><td>{v(L3.get(k), d, u)}</td></tr>"
                    for k, (n, u, d) in NAMES.items() if k in N)
@@ -1556,7 +1609,7 @@ if __name__ == "__main__":
 
 ```python
 #!/usr/bin/env python3
-# whoop-full-analysis brief v1.1
+# whoop-full-analysis brief v1.2
 # One-page visual brief from a JSON spec: python3 brief.py brief.json --out whoop_out [--font FILE ...] [--no-fetch] [--width 720]
 # Writes brief.html (self-contained), plus brief.png (phone-friendly image) and brief.pdf when a headless Chromium (Playwright) is available.
 import argparse, base64, glob, html, json, os, re, shutil, subprocess, tarfile, tempfile
@@ -1581,6 +1634,10 @@ CHIPS = dict(clear=("علاقة واضحة", "solid"), possible=("إشارة م�
              nodata=("البيانات ما تكفي للحكم", "muted"))
 LEG = dict(clear="قوية وثابتة داخل نفس الشهر", possible="تحتاج تأكيد", nodata="مو معناها ما فيه تأثير",
            between="تظهر لما نقارن فترات وتختفي داخل الشهر، فسببها غالباً شي ثاني")
+CHIPS_EN = dict(clear=("clear link", "solid"), possible=("possible signal", "outline"), between=("between periods only", "muted"), nodata=("not enough data", "muted"))
+LEG_EN = dict(clear="strong, and it holds inside the same month", possible="needs confirming", nodata="not the same as no effect",
+              between="shows when comparing periods and fades inside a month, so something else likely changed")
+EN = False  # set by build(): "lang": "en" in the spec gives an English, left-to-right brief
 TONES = dict(good="#0ca30c", warn="#fab219", bad="#d03b3b", neutral="#898781")  # status colours always come with a word (tag)
 SUB = dict(arabic="U+0600-06FF, U+0750-077F, U+0870-08FF, U+FB50-FDFF, U+FE70-FEFC",
            latin="U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+20AC, U+2122, U+2190-2193, U+2212, U+2215")
@@ -1658,6 +1715,8 @@ TOK = re.compile(r"\*\*|(?<![\w.])[+\-−]\d[\d.,:]*%?|[A-Za-z][A-Za-z0-9]*(?:[ 
 
 
 def rich(t):  # escape, **bold**, and keep Latin words and signed numbers (+8, -13) as left-to-right islands in Arabic text
+    if EN:  # English brief: bold only, so the text wraps normally
+        return re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", html.escape(str(t), quote=False))
     s, out, i, bold = str(t), [], 0, False
     for m in TOK.finditer(s):
         out.append(html.escape(s[i:m.start()], quote=False)); g, i = m.group(), m.end()
@@ -1716,11 +1775,11 @@ def kpi(k):
 
 
 def card(c):
-    ic = c.get("icon", "pulse"); fl = " class=flip" if ic in FLIP else ""
+    ic = c.get("icon", "pulse"); fl = " class=flip" if ic in FLIP and not EN else ""
     svg = f'<svg viewBox="0 0 24 24"{fl}>{ICONS.get(ic, ICONS["pulse"])}</svg>'
     chip = ""
     if c.get("chip"):
-        txt, sty = CHIPS.get(c["chip"], (c["chip"], "muted")); chip = f'<span class="chip {sty}">{rich(txt)}</span>'
+        txt, sty = (CHIPS_EN if EN else CHIPS).get(c["chip"], (c["chip"], "muted")); chip = f'<span class="chip {sty}">{rich(txt)}</span>'
     st = c.get("stat")
     md = " md" if st and len(str(st["value"])) > 5 else ""
     stat = f'<div class="stat"><b class="sv{md}">{rich(st["value"])}</b><span class="cap">{rich(st.get("caption", ""))}</span></div>' if st else ""
@@ -1743,24 +1802,26 @@ def card(c):
 
 
 def build(S, fcss, W):
+    global EN
+    EN = str(S.get("lang", "ar")).lower().startswith("en"); CH, LG = (CHIPS_EN, LEG_EN) if EN else (CHIPS, LEG)
     kp = "".join(kpi(k) for k in S.get("kpis", []))
     cards = "".join(card(c) for c in S.get("cards", []))
     plan = ""
     if S.get("plan"):
         items = "".join(f'<li><b class="pl">{rich(p.get("lead", ""))}</b>' + (f'<span class="pt">{rich(p["text"])}</span>' if p.get("text") else "") + "</li>" for p in S["plan"])
         plan = (f'<section class="plan"><div class="ch"><div class="ico"><svg viewBox="0 0 24 24">{ICONS["check"]}</svg></div>'
-                f'<h2>{rich(S.get("plan_title", "خطتك العملية"))}</h2></div><ol>{items}</ol></section>')
+                f'<h2>{rich(S.get("plan_title", "Your plan" if EN else "خطتك العملية"))}</h2></div><ol>{items}</ol></section>')
     alert = ""
     if S.get("alerts"):
-        lbl = f'<b class="lbl">{rich(S.get("alerts_label", "انتبه"))}:</b> '
+        lbl = f'<b class="lbl">{rich(S.get("alerts_label", "Note" if EN else "انتبه"))}:</b> '
         ps = "".join(f"<p>{lbl if i == 0 else ''}{rich(x)}</p>" for i, x in enumerate(S["alerts"]))
         alert = f'<section class="alert">{ALERT}<div>{ps}</div></section>'
     keys = S.get("legend") or list(dict.fromkeys(c.get("chip") for c in S.get("cards", []) if c.get("chip") in CHIPS))
-    legend = "".join(f'<span><span class="chip {CHIPS[k][1]}">{CHIPS[k][0]}</span>{LEG[k]}</span>' for k in keys if k in CHIPS)
+    legend = "".join(f'<span><span class="chip {CH[k][1]}">{CH[k][0]}</span>{LG[k]}</span>' for k in keys if k in CHIPS)
     legend = f'<div class="legend">{legend}</div>' if legend else ""
     foot = "".join(f"<p>{rich(x)}</p>" for x in S.get("footer", []))
     hd = f'<div class="head">{rich(S["headline"])}</div>' if S.get("headline") else ""
-    return (f'<!DOCTYPE html><html lang="{S.get("lang", "ar")}" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width={W}">'
+    return (f'<!DOCTYPE html><html lang="{S.get("lang", "ar")}" dir="{"ltr" if EN else "rtl"}"><head><meta charset="utf-8"><meta name="viewport" content="width={W}">'
             f'<title>{html.escape(str(S.get("title", "WHOOP")))}</title><style>{fcss}\n{CSS.replace("__W__", str(W))}</style></head><body>'
             f'<header class="hero"><div class="over">{rich(S.get("overline", ""))}</div><h1>{rich(S.get("title", ""))}</h1>'
             f'<div class="sub">{rich(S.get("subtitle", ""))}</div>{hd}</header><div class="kpis">{kp}</div><div class="grid">{cards}</div>'
