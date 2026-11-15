@@ -6,7 +6,7 @@
 
 ## العربية
 
-مهارة (Skill) لـ Claude تحلّل ملف تصدير WHOOP كاملاً وتشرح النتيجة بلغة واضحة لغير المتخصص، بالعربية أو الإنجليزية حسب لغة المستخدم.
+مهارة (Skill) لـ Claude تحلّل ملف تصدير WHOOP كاملاً وتشرح النتيجة بلغة واضحة لغير المتخصص، **بأي لغة يكتب بها المستخدم**: العربية والإنجليزية جاهزتان، وأي لغة ثانية تُكتب بها التقارير والملخص المصوّر وصفحة الملف، ومن اليمين لليسار عند الحاجة.
 
 ### وش تسوي
 
@@ -17,7 +17,8 @@
 - **أقوى 3 روافع:** ترتيب للتغييرات اللي يُتوقع منها أكبر فرق في الريكفري (أثرها داخل الشهر × كم ينقصك منها آخر 30 يوم)، كتقدير لا كوعد.
 - **بروتوكول 14 يوم:** خطة أسبوعين برقم مستهدف وموعد إعادة فحص.
 - **ملخص مصوّر** (صورة للجوال + PDF) و**فحص الصباح** من لقطة شاشة.
-- تدعم التصدير العربي من التطبيق، رمضان، الويكند السعودي (جمعة/سبت)، والسفر.
+- تقرأ التصدير بأي لغة للتطبيق: الإنجليزي والعربي مباشرة، وأي لغة ثانية عبر ملف مطابقة للعناوين تجهّزه المهارة بنفسها.
+- تراعي رمضان والويكند حسب بلدك (الافتراضي جمعة/سبت) والسفر.
 
 ### المدخلات
 
@@ -35,7 +36,7 @@ npx skills add Sulaimannnnnn/Whoop-full-analysis
 
 Python 3 مع `pandas` و`numpy`. اختياري: `scipy`، `matplotlib` (للرسوم)، `playwright` (لإخراج الملخص المصوّر PNG/PDF).
 
-السكربتات الثلاثة (`whoop.py`، `insights.py`، `brief.py`) موجودة داخل `SKILL.md` وتُستخرج تلقائياً عند التشغيل.
+السكربتات الثلاثة (`whoop.py`، `insights.py`، `brief.py`) في مجلد `scripts/` داخل المهارة، وتُنسخ تلقائياً عند التشغيل.
 
 ### الخصوصية
 
@@ -51,7 +52,7 @@ Python 3 مع `pandas` و`numpy`. اختياري: `scipy`، `matplotlib` (للر
 
 ## English
 
-A Claude Skill that analyses a full WHOOP data export and explains the result in plain language for a non-specialist, in Arabic or English depending on the language the user writes in.
+A Claude Skill that analyses a full WHOOP data export and explains the result in plain language for a non-specialist, **in whatever language the user writes**: Arabic and English are built in, and any other language gets the report, visual brief and profile page in that language, right to left where needed.
 
 ### What it does
 
@@ -62,7 +63,8 @@ A Claude Skill that analyses a full WHOOP data export and explains the result in
 - **Top 3 levers:** a ranking of the changes expected to move Recovery the most (same-month effect × how much room your last 30 days leave), given as estimates, not promises.
 - **14-day protocol:** a two-week plan with one target number and a re-check date.
 - **Visual brief** (phone image + PDF) and a **morning check** from a screenshot.
-- Handles Arabic-language exports, Ramadan, the Saudi weekend (Friday/Saturday) and travel.
+- Reads exports in any app language: English and Arabic directly, any other language through a header map the skill prepares for you.
+- Handles Ramadan, your local weekend (default Friday/Saturday) and travel.
 
 ### Input
 
@@ -80,7 +82,7 @@ Or copy the `skills/whoop-full-analysis` folder into `~/.claude/skills/`, or upl
 
 Python 3 with `pandas` and `numpy`. Optional: `scipy`, `matplotlib` (charts), `playwright` (PNG/PDF output of the visual brief).
 
-The three scripts (`whoop.py`, `insights.py`, `brief.py`) live inside `SKILL.md` and are extracted automatically at run time.
+The three scripts (`whoop.py`, `insights.py`, `brief.py`) live in the skill's `scripts/` folder and are copied automatically at run time.
 
 ### Privacy
 
@@ -91,6 +93,12 @@ This repository contains no health data. Your data is analysed inside your own s
 - An independent project, not affiliated with or endorsed by WHOOP. WHOOP is a trademark of its owner.
 - WHOOP is a wellness device, not a diagnostic one; this skill does not diagnose and does not replace a doctor.
 - The links shown are correlations in your own data, not proof of cause, and the "levers" are estimates.
+
+### What's new in v1.2 · الجديد
+
+- Any language for reports, the visual brief and the profile page; exports in any app language. · أي لغة للتقارير والملخص والصفحة، وتصدير التطبيق بأي لغة.
+- Fixed a bug in v1.1 that left Arabic-language exports unrecognised. · إصلاح خلل في 1.1 كان يمنع قراءة التصدير العربي.
+- `SKILL.md` is about a quarter of its old size; the scripts moved to `scripts/`. · `SKILL.md` صار ربع حجمه تقريباً، والسكربتات انتقلت إلى `scripts/`.
 
 ---
 
