@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# whoop-full-analysis insights v1.3
+# whoop-full-analysis insights v1.4
 # Patterns the WHOOP app does not spell out, from the engine's daily table: python3 insights.py --out whoop_out
 # Reads whoop_out/daily_enriched.csv (+ findings.json); writes insights.md, insights.json, profile.json and profile.html (the user's normal, for the morning check)
 # After editing profile.json (name, plan, lang, strings): python3 insights.py --out whoop_out --page  rebuilds profile.html only
@@ -345,6 +345,48 @@ def main():
         P("No link has both a clear/possible verdict inside the same month and room in the last 30 days, so nothing is ranked yet.")
     OUT["leverage"] = [dict(x, effect=num(x["effect"]), gain=num(x["gain"])) for x in lev]
 
+    # ---------- 12. checklist numbers with fixed definitions
+    H("12. Checklist numbers (fixed definitions)")
+    ck = {}; nd = int(D["day"].nunique()); ck["days_with_data"] = nd
+    P(f"- Days with data: {nd}" + (" - FEWER THAN 14: every pattern is preliminary; no leverage points and no 14-day protocol yet." if nd < 14 else ""))
+    emp = {c: int(round(float(D[c].isna().mean()) * 100)) for c in D.columns if c != "end" and D[c].isna().mean() >= .5}
+    P("- Columns at least half empty: " + (", ".join(f"{c} ({v}%)" for c, v in emp.items()) if emp else "none")); ck["mostly_empty"] = emp
+    P("- Scope: 'latest' = the latest wear period. Spread leaves out Ramadan and daytime sleeps (main sleep starting 06:00 or later). "
+      "Night-to-night change uses consecutive calendar days only.")
+    step = lambda s_: float(s_.diff().abs().mean()) if s_.diff().notna().sum() >= 5 else np.nan
+    rows = []
+    if "bed_h" in C:
+        reg = le & (C["bed_h"] < 6) & ((C["ramadan"] != 1) if "ramadan" in C else True)
+        for k, nm in (("bed_h", "Bedtime"), ("wake_h", "Wake time")):
+            s_ = C[k].where(reg) if k in C else pd.Series(dtype=float)
+            if s_.notna().sum() >= 7:
+                sd = float(s_.std()) * 60; ck[k + "_spread"] = dict(n=int(s_.notna().sum()), sd_min=num(sd), night_to_night_min=num(step(s_) * 60), irregular=bool(sd > 45))
+                rows.append([f"{nm} spread (latest)", int(s_.notna().sum()), f"SD {f(sd, 0)} min; night-to-night change {f(step(s_) * 60, 0)} min",
+                             "irregular (SD over 45 min)" if sd > 45 else "regular (SD 45 min or under)"])
+    for k, nm, cuts in (("eff", "Sleep efficiency", (85,)), ("spo2", "Blood oxygen", (94, 90))):
+        for sc, m in (("whole period", C[k].notna() if k in C else None), ("latest", le)):
+            v = C[k][m].dropna() if k in C else pd.Series(dtype=float)
+            if len(v) < 7 or (sc == "latest" and le.sum() == C["era"].notna().sum()):
+                continue
+            d_ = dict(n=int(len(v)), mean=num(v.mean()), min=num(v.min()), min_day=str(v.idxmin().date()), **{f"under_{c}": int((v < c).sum()) for c in cuts})
+            ck[f"{k}_{sc.split()[0]}"] = d_
+            rows.append([f"{nm} ({sc})", len(v), f"mean {f(v.mean())}%; lowest {f(v.min())}% on {v.idxmin().date()}",
+                         "; ".join(f"{int((v < c).sum())} nights under {c}% ({f(100 * (v < c).mean(), 0)}%)" for c in cuts)])
+    hv = hrv.where(le)
+    if hv.notna().sum() >= 14:
+        cv = 100 * float(hv.std()) / float(hv.mean()); ck["hrv_variability"] = dict(n=int(hv.notna().sum()), cv_pct=num(cv), night_to_night_ms=num(step(hv)))
+        rows.append(["HRV night-to-night variability (latest)", int(hv.notna().sum()), f"coefficient of variation {f(cv, 0)}%; average change from one morning to the next {f(step(hv))} ms", "-"])
+        tl = hv.last_valid_index(); l7 = hv[(hv.index > tl - pd.Timedelta(days=7)) & (hv.index <= tl)].dropna()
+        b28 = hv[(hv.index > tl - pd.Timedelta(days=35)) & (hv.index <= tl - pd.Timedelta(days=7))].dropna()
+        if len(l7) >= 4 and len(b28) >= 10:
+            df_ = l7.mean() - b28.mean()
+            ck["hrv_balance"] = dict(last_day=str(tl.date()), last=num(hv[tl]), last7=num(l7.mean()), base28=num(b28.mean()), n_base=int(len(b28)), last7_vs_base=num(df_), last_vs_base=num(hv[tl] - b28.mean()))
+            rows.append([f"28-day HRV balance (to {tl.date()})", len(b28), f"last morning {f(hv[tl], 0)} ms; last 7 days {f(l7.mean())} ms; the 28 days before them {f(b28.mean())} ms",
+                         f"last 7 days {sg(df_)} ms vs the 28 days before; last morning {sg(hv[tl] - b28.mean())} ms"])
+    T(["Item", "Nights", "Value", "Reading"], rows)
+    P("These are counts and averages, not links: no cause is implied. Blood-oxygen counts under 94% are descriptive; single low nights are often a loose strap.")
+    OUT["checklist"] = ck
+
     # ---------- profile for the morning check
     Le = D[D["era"] == D["era"].max()]; w30 = D["day"] > L - pd.Timedelta(days=30)
     q = lambda s: dict(mean=num(s.mean()), p25=num(s.quantile(.25)), p75=num(s.quantile(.75)), n=int(s.notna().sum()))
@@ -361,6 +403,9 @@ def main():
         prof["recovery_per_extra_hour"] = dict(whole_period=num(sl.get("slope")), same_month=num(sl.get("w_b")), verdict=sl.get("verdict"))
     prof["habits"] = [dict(question=j["question"], recovery_same_month=(j.get("same_month") or {}).get("recovery"), verdict=j.get("verdict"))
                       for j in F.get("journal_all", []) if j.get("verdict") in ("clear", "possible")]
+    for k in ("hrv_balance", "bed_h_spread", "wake_h_spread"):
+        if k in ck:
+            prof[k] = ck[k]
     for k in ("sleep_sweet_spot", "bounce_back", "carry_over"):
         if k in OUT:
             prof[k] = OUT[k] if k != "carry_over" else dict(recovery=OUT[k]["recovery"]["diff"], verdict=OUT[k]["recovery"]["verdict"])

@@ -15,6 +15,14 @@
 
 WHOOP gives you a score every morning. It doesn't tell you **why it moved**, what your **real normal** is, or **which one change would move it most**. Your export already holds the answers — this skill digs them out.
 
+### Why people use it
+
+- **Answers, not a score.** Why your Recovery moved, what your real normal is, and the one change worth making first.
+- **Your top 3 levers, ranked.** Each with an estimated gain in average Recovery, then a 14-day protocol to test it.
+- **Every number is computed, none is guessed.** A coverage table and a self-check prove nothing in your export was skipped.
+- **Reads your export as it is.** English or Arabic directly, any other app language with a one-time mapping.
+- **Speaks your language.** Report, phone-sized briefs and the daily morning check, right to left where needed.
+
 ### 10 things the WHOOP app won't tell you
 
 | | The hidden pattern | Why the app misses it |
@@ -32,6 +40,16 @@ WHOOP gives you a score every morning. It doesn't tell you **why it moved**, wha
 
 Then it ranks **your top 3 levers** — the changes expected to move your average Recovery the most, with an estimated gain each — and turns the best one or two into a **14-day protocol** with one target number and a re-check date.
 
+### Plus a health checklist with fixed definitions
+
+Computed the same way on every run, so two analyses are always comparable:
+
+- **Bedtime spread:** how many minutes your bedtime and wake time move from night to night, flagged when it passes 45 minutes.
+- **Sleep efficiency:** how many nights fell under 85%.
+- **Blood oxygen:** your average, your lowest night, and the nights under 94% and under 90% — described calmly, never as an alarm.
+- **HRV swings:** how much your HRV changes from one morning to the next.
+- **28-day HRV balance:** your last 7 days against the 28 days before them, which the morning check then uses every day.
+
 ### Numbers you can trust
 
 - **Exact:** every number is computed by code from your raw export — never estimated or read off a chart.
@@ -45,6 +63,11 @@ Then it ranks **your top 3 levers** — the changes expected to move your averag
 - **A full report** — 13 sections, from "your normal" to "what moves your Recovery", written for a non-specialist.
 - **Two one-page briefs** for your phone (PNG + PDF): your summary, and *What WHOOP doesn't tell you* (like the demo above).
 - **A daily morning check** — send a screenshot of today's WHOOP screen and get today's plan against *your* baseline in six lines.
+- **A starter report** when you have fewer than 14 days: your baseline now, patterns marked preliminary, and the date to export again.
+
+### Other wearables (limited mode)
+
+Oura, Garmin, Apple Watch and Fitbit exports can be analysed too, with the same checklist and the same rule that every number comes from code. The tested engine is built for WHOOP, so on other devices no link is called "clear", and there are no leverage points or 14-day protocol. The skill says so in the report.
 
 ### Any language
 
@@ -79,12 +102,12 @@ Python 3 with `pandas` and `numpy`. Optional: `scipy`, `matplotlib` (charts), `p
 
 ### Privacy
 
-This repository contains no health data. Your export is analysed inside your own Claude session.
+This repository contains no health data. Your export is analysed inside your own Claude session. The scripts send nothing anywhere (the only download is a font), nothing is posted or shared, and your averages are kept in a private page only if you say yes.
 
 ### Disclaimer
 
 - Independent project, not affiliated with or endorsed by WHOOP. WHOOP is a trademark of its owner.
-- WHOOP is a wellness device, not a diagnostic one. This skill does not diagnose and does not replace a doctor.
+- WHOOP is a wellness device, not a diagnostic one. This skill does not diagnose and does not replace a doctor. It suggests seeing one only in a few defined cases, such as blood oxygen under 90% on repeated nights.
 - Links are correlations in your own data, not proof of cause; levers are estimates, not promises.
 
 ---
@@ -99,6 +122,14 @@ This repository contains no health data. Your export is analysed inside your own
 <p align="center"><sub>عرض صنعته المهارة من بيانات <b>مصطنعة</b> — مو لشخص حقيقي.</sub></p>
 
 WHOOP يعطيك رقم كل صباح، بس ما يقول لك **ليش تغيّر**، ولا وش **معدلك الحقيقي**، ولا **أي تغيير واحد** يفرق معك أكثر. الجواب موجود في ملف التصدير، والمهارة تطلّعه.
+
+### ليش الناس تستخدمها
+
+- **جواب، مو رقم:** ليش تغيّر الريكفري عندك، وش معدلك الحقيقي، وأي تغيير تبدأ فيه.
+- **أقوى 3 روافع عندك مرتّبة:** مع تقدير لأثر كل واحدة على متوسط الريكفري، ثم بروتوكول 14 يوم تجرّبها فيه.
+- **كل رقم محسوب، ولا رقم مخمَّن:** جدول تغطية وفحص ذاتي يثبتون أن ما فيه شي من ملفك انترك.
+- **تقرأ ملفك مثل ما هو:** العربي والإنجليزي مباشرة، وأي لغة ثانية للتطبيق بمطابقة مرة واحدة.
+- **تكلمك بلغتك:** التقرير والملخصات المصوّرة وفحص الصباح اليومي.
 
 ### 10 أشياء ما يقولها لك التطبيق
 
@@ -115,6 +146,16 @@ WHOOP يعطيك رقم كل صباح، بس ما يقول لك **ليش تغي�
 
 وبعدها ترتّب لك **أقوى 3 روافع** — التغييرات اللي يُتوقع منها أكبر فرق في متوسط الريكفري مع تقدير لكل وحدة — وتحوّل أقواها إلى **بروتوكول 14 يوم** برقم مستهدف وموعد إعادة فحص.
 
+### ومعها قائمة فحص صحية بتعريفات ثابتة
+
+تنحسب بنفس الطريقة كل مرة، عشان تقدر تقارن تحليل بتحليل:
+
+- **تذبذب وقت النوم:** كم دقيقة يتحرك موعد نومك وصحيانك من ليلة لليلة، وتنبيه إذا تعدّى 45 دقيقة.
+- **كفاءة النوم:** كم ليلة نزلت تحت 85%.
+- **أكسجين الدم:** معدلك، وأقل ليلة، وعدد الليالي تحت 94% وتحت 90%، بوصف هادئ بدون تهويل.
+- **تقلّب HRV:** كم يتغيّر من صبح للي بعده.
+- **توازن HRV لـ28 يوم:** آخر 7 أيام مقابل الـ28 يوم اللي قبلها، وفحص الصباح يستخدمه كل يوم.
+
 ### أرقام تقدر تثق فيها
 
 - **دقيقة:** كل رقم محسوب بالكود من ملفك، بدون تقدير بالنظر.
@@ -128,6 +169,11 @@ WHOOP يعطيك رقم كل صباح، بس ما يقول لك **ليش تغي�
 - **تقرير كامل** من 13 قسم بلغة واضحة لغير المتخصص.
 - **ملخصين مصوّرين** للجوال (صورة + PDF): ملخصك، و«وش ما يقوله لك WHOOP» مثل الصورة فوق.
 - **فحص الصباح:** صوّر شاشة WHOOP اليوم وخذ خطة يومك مقارنة بمعدلك أنت في 6 أسطر.
+- **تقرير بداية** إذا بياناتك أقل من 14 يوم: معدلك الحالي، والأنماط موسومة «أولية»، ومتى تعيد التصدير.
+
+### أجهزة ثانية (وضع محدود)
+
+ملفات Oura و Garmin و Apple Watch و Fitbit تتحلل كذلك بنفس قائمة الفحص وبنفس قاعدة «كل رقم من الكود». المحرك المختبَر مبني لـ WHOOP، فمع الأجهزة الثانية ما تنوصف أي علاقة بأنها «واضحة»، وما فيه روافع ولا بروتوكول 14 يوم، والمهارة تقول هذا في التقرير.
 
 ### بأي لغة
 
@@ -151,7 +197,7 @@ npx skills add Sulaimannnnnn/Whoop-full-analysis
 
 ### الخصوصية وإخلاء المسؤولية
 
-المستودع ما فيه أي بيانات صحية، وبياناتك تُحلَّل داخل جلستك فقط. مشروع مستقل غير تابع لشركة WHOOP. WHOOP جهاز عافية لا جهاز تشخيص، والمهارة لا تشخّص ولا تغني عن الطبيب. العلاقات ارتباطات من بياناتك لا إثبات سببية، والروافع تقديرات لا وعود.
+المستودع ما فيه أي بيانات صحية، وبياناتك تُحلَّل داخل جلستك فقط. السكربتات ما ترسل شي لأي مكان (التنزيل الوحيد خط للكتابة)، وما ينشر أو يُشارك شي، ومعدلاتك ما تنحفظ في صفحة خاصة إلا إذا وافقت. مشروع مستقل غير تابع لشركة WHOOP. WHOOP جهاز عافية لا جهاز تشخيص، والمهارة لا تشخّص ولا تغني عن الطبيب، وتقترح مراجعته في حالات محددة فقط مثل أكسجين دم تحت 90% في ليالي متكررة. العلاقات ارتباطات من بياناتك لا إثبات سببية، والروافع تقديرات لا وعود.
 
 ---
 

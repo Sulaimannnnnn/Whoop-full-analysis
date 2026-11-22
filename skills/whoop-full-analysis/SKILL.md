@@ -1,9 +1,11 @@
 ---
 name: "whoop-full-analysis"
-description: "تحليل كامل لبيانات ساعة WHOOP (ملف تصدير ZIP/CSV، لقطات شاشة، PDF) بدون تجاوز شيء — التعافي، HRV، النوم، الإجهاد، التمارين، اليوميات، مربوطة ومشروحة بلغة واضحة، بأي لغة يكتب بها المستخدم. استعمله لأي بيانات WHOOP / ووب. Full WHOOP data analysis (ZIP/CSV export in any app language, screenshots, PDF): Recovery, HRV, sleep, strain, workouts and journal, linked and explained in plain language, in whatever language the user writes."
+description: "تحليل كامل لبيانات ساعة WHOOP (ملف تصدير ZIP/CSV، لقطات شاشة، PDF) بدون تجاوز شيء — التعافي، HRV، النوم، الإجهاد، التمارين، اليوميات، مربوطة ومشروحة بلغة واضحة، بأي لغة يكتب بها المستخدم. استعمله لأي بيانات WHOOP / ووب. Full WHOOP data analysis (ZIP/CSV export in any app language, screenshots, PDF): Recovery, HRV, sleep, strain, workouts and journal, linked and explained in plain language, in whatever language the user writes. Oura, Garmin, Apple Watch and Fitbit exports are read in a limited mode."
 ---
 
 # WHOOP full analysis — تحليل بيانات WHOOP الكامل
+
+Act as an elite personal health analyst with deep expertise in wearable technology, sleep science, cardiovascular physiology and behaviour-change coaching: the most thorough, individualised analysis possible, with insights that are specific, actionable and grounded entirely in the user's actual data.
 
 The user is not a health or data specialist. They set four conditions, and every analysis must meet all of them:
 
@@ -39,6 +41,7 @@ This skill gives its user-facing wording in **Arabic** (the examples in «», wr
 
 ## 1. Get the right data
 
+- **Which device?** A WHOOP export has columns such as "Cycle start time", "Recovery score %" and "Day Strain" (in the app's language). WHOOP files always go through the engine. Files from any other device follow section 3b and never go through the engine as they are. Files from two devices are analysed separately and never merged into one table.
 - Best input: the WHOOP data export — the ZIP from WHOOP's email, or the CSVs inside it (`physiological_cycles.csv`, `sleeps.csv`, `workouts.csv`, `journal_entries.csv`). Use every file attached; never ask the user to drop any.
 - **Exports in any app language.** The app exports in the language it is set to. Feed the files as they are:
   - English and Arabic (files such as `الدورات الفسيولوجية.csv`, `النوم.csv`, `تدريبات.csv`, `إدخالات اليوميات.csv`) are read directly; Arabic headers are translated and kept in [brackets].
@@ -72,7 +75,7 @@ This skill gives its user-facing wording in **Arabic** (the examples in «», wr
    EOF
    ```
 
-   Reuse existing copies only if their second lines are `# whoop-full-analysis engine v1.2`, `# whoop-full-analysis insights v1.3` and `# whoop-full-analysis brief v1.3`; older versions cannot read Arabic exports (a bug in v1.1 left every Arabic file unrecognised), other-language exports or any-language pages. If the folder cannot be found at all, tell the user the skill's scripts are missing; do not write the analysis by hand.
+   Reuse existing copies only if their second lines are `# whoop-full-analysis engine v1.2`, `# whoop-full-analysis insights v1.4` and `# whoop-full-analysis brief v1.3`; older versions cannot read Arabic exports (a bug in v1.1 left every Arabic file unrecognised), other-language exports or any-language pages. If the folder cannot be found at all, tell the user the skill's scripts are missing; do not write the analysis by hand.
 2. Run the engine on all the WHOOP files at once, then the insights on its output:
    `python3 whoop.py <the ZIP, or every CSV, or their folder> --out whoop_out --weekend Fri,Sat`
    `python3 insights.py --out whoop_out`
@@ -80,13 +83,59 @@ This skill gives its user-facing wording in **Arabic** (the examples in «», wr
 3. Missing packages: `pip install pandas numpy matplotlib scipy` (scipy and matplotlib are optional; without matplotlib there are no charts). Recent matplotlib draws Arabic chart labels by itself; on an older one, `pip install arabic-reshaper python-bidi`, or the labels become codes A1… explained at the end of `summary.md`. Chart labels in other scripts use whichever installed font covers them. The visual brief needs Playwright's headless Chromium (`pip install playwright`, then `python -m playwright install chromium` where the network allows); without it `brief.py` still writes `brief.html`.
 4. If it fails, read the error and fix the cause. Do not fall back to reading the files by eye.
 
-It writes to `whoop_out/`: `summary.md` (every computed number, 15 sections), `coverage.csv` (every column and what it was used for), `findings.json`, `daily_enriched.csv` (one row per WHOOP day with every metric, each Journal answer as `journal: …`, extra columns as `extra: …`, the wear period as `era`, and `prev_cycle_ok`), `charts/*.png`, and `headers_to_map.json` only when some headers still need mapping. `insights.py` adds `insights.md` (10 patterns the WHOOP app does not spell out, then the ranked leverage points), `insights.json`, and `profile.json` with `profile.html` (the user's normal, for the morning check in section 8).
+It writes to `whoop_out/`: `summary.md` (every computed number, 15 sections), `coverage.csv` (every column and what it was used for), `findings.json`, `daily_enriched.csv` (one row per WHOOP day with every metric, each Journal answer as `journal: …`, extra columns as `extra: …`, the wear period as `era`, and `prev_cycle_ok`), `charts/*.png`, and `headers_to_map.json` only when some headers still need mapping. `insights.py` adds `insights.md` (10 patterns the WHOOP app does not spell out, the ranked leverage points, then the checklist numbers that section 3a asks for), `insights.json`, and `profile.json` with `profile.html` (the user's normal, for the morning check in section 8).
 
 ## 3. Read everything before writing
 
 - Read all of `summary.md` and `insights.md`, and look at every chart. Describe charts in words; take every number from `summary.md` or from code, never from reading a chart.
-- Section 14 must say PASS on every line, and the coverage table must give every column a use. If anything says CHECK (including headers still to map in section 1), find out why before reporting.
+- Numbering: "`summary.md` section N" and "`insights.md` section N" are the scripts' outputs, "report section N" is a row of the table in section 5, and a bare "section N" inside section 4 means `summary.md`.
+- `summary.md` section 14 must say PASS on every line, and the coverage table must give every column a use. If anything says CHECK (including headers still to map in section 1), find out why before reporting.
 - Any extra number you need, including for follow-up questions, is computed from `daily_enriched.csv` with code — never from memory. For "the day before" comparisons use rows where `prev_cycle_ok` is true. Check rounding on the exact value (88.49 is 88, not 89).
+
+## 3a. Inventory, baseline and pattern checklist
+
+Before writing, make sure the report answers every item below. Most come straight from `summary.md`. Items marked *checklist* are already computed, with fixed definitions, in `insights.md` section 12: quote them from there and do not recompute them. A field that is not in the files is reported in one line as not in this export: never assume it exists and never estimate it.
+
+**Inventory (report section 2)**
+- The format of each file (CSV, ZIP, JSON, XML, screenshot, PDF) and every data category found in it.
+- The exact first and last date, and the total days of data. Fewer than 14 days: write a starter report. Say so at the top, give the inventory and the baseline, call every pattern preliminary with no verdict above "possible signal", leave out the leverage points and the 14-day protocol, and give the date on which a new export would reach 30 days.
+- Completeness: every gap longer than 2 days, columns that are mostly empty (*checklist*: columns at least half empty), and anomalies.
+- Device context: WHOOP organises data by physiological cycle, not by calendar day; its HRV is RMSSD in milliseconds; its skin temperature is an absolute reading, so what matters is the change from the user's own normal.
+
+**Baseline (report section 3)**
+- Sleep: hours asleep, efficiency, sleep performance, minutes and share in Deep, REM, Light and Awake, usual bedtime and wake time (medians).
+- Heart: resting HR overall and by day of week, HRV with the metric named (RMSSD), blood oxygen and respiratory rate during sleep.
+- Recovery and skin temperature against the user's own normal.
+- Activity: steps, energy burned, Day Strain, workouts per week and their average duration.
+- Usually not in a WHOOP export: sleep latency, the number of awakenings (only awake minutes), a stress score, VO2 max, ECG or irregular-rhythm flags. Say so in one line. If such a column does exist, the engine profiles it in `summary.md` section 13: use it.
+
+**Patterns (each needs at least 2 weeks of data)**
+- Bedtime spread, *checklist*: the standard deviation of bedtime and of wake time in minutes and the average night-to-night change (Ramadan and daytime sleeps are left out; say so). A standard deviation over 45 minutes is flagged as irregular timing. This is not WHOOP's "Sleep consistency" percentage: report both, each under its own name. Any effect on Recovery is stated only with the engine's verdict for sleep consistency and bedtime. Report section 5.
+- Sleep duration trend: up, down or stable, from `summary.md` section 8.
+- Sleep stages as shares of sleep against WHOOP's typical ranges.
+- Sleep efficiency, *checklist*: the number and share of nights under 85%. Report section 5.
+- Sleep latency over 20 minutes and awakenings per night: only when the export has them.
+- Respiratory rate: stable or rising, from the trend table.
+- Blood oxygen, *checklist*: the average, the lowest night with its date, and the number and share of nights under 94% and under 90%. Read it with the blood-oxygen ladder in «Health and safety». Report section 9.
+- HRV trend, inside the latest wear period first: rising, falling or stable.
+- HRV night-to-night variability, *checklist*: the coefficient of variation and the average change from one morning to the next. A description only: do not name a cause for the swings. Report section 3.
+- HRV suppressors: what HRV does after late bedtimes, after high-strain days and after each Journal habit, taken from "Links with HRV" in `summary.md` section 6 with its verdicts and same-month check. Alcohol is covered only when the Journal has it, under the personal-questions rule.
+- HRV and Recovery: how closely they move together, in words, from `summary.md` section 5.
+- 28-day HRV balance, *checklist*: the latest morning's HRV and the last 7-day average against the average of the 28 days before those 7 (no overlap, latest wear period only), above or below and by how many ms. Report section 10.
+
+## 3b. Other trackers (Oura, Garmin, Apple Watch, Fitbit, Samsung and others) — limited mode
+
+The engine reads WHOOP exports only. When the files come from another device, do not push them through `whoop.py`:
+
+- Write code (pandas) for those files: load every file and every column, build one row per day, and keep the four conditions and the checklist in 3a, using the device's own metric names and score bands, never WHOOP's.
+- Prove coverage yourself: a table of every file and column with what it was used for, and a self-check that the mean of each key metric in your table equals the mean in the raw file. These stand in for `coverage.csv` and the PASS lines.
+- Verdicts: the engine's tested statistics do not run here, so no link is called a "clear link". The strongest word is "possible signal", and only when the difference is large, holds inside the same calendar month and makes physiological sense. Everything else is described as counts and averages.
+- Report: keep the 13 report sections. Where one has no equivalent (how Recovery is built, Journal, leverage points, "What WHOOP doesn't tell you"), say in one line that this device's export does not carry it. No leverage points, no 14-day protocol with a Recovery target, and no profile page.
+- Keep the alignment logic: the night's sleep explains that morning's readiness; the day's activity shows up the next morning.
+- Device context to state: Oura reports body temperature as a deviation from the user's baseline, not an absolute reading; Garmin Body Battery is a proprietary 0-100 energy score and its stress score comes from HRV; Apple Health exports one large `export.xml` (parse it in a stream) and reports HRV as SDNN, which is not comparable with RMSSD from other devices; each brand names and scores its sleep stages differently, so compare the user with their own normal, not across devices.
+- Irregular-rhythm or ECG notices found in a file are reported as the device recorded them and never interpreted, with a calm suggestion to show them to a doctor.
+- Say once that the numbers come from code written for this file, not from the tested WHOOP engine. The visual brief (`brief.py`) works for any device. A morning screenshot from another device is read against that device's own bands and the user's averages from this session only.
+- Not exported yet? Give that device's own export route in the user's language, looking it up when unsure instead of guessing the menu path.
 
 ## 4. How to read the results
 
@@ -103,7 +152,7 @@ It writes to `whoop_out/`: `summary.md` (every computed number, 15 sections), `c
   - `partly` → it is «إشارة محتملة» at most.
   - `between periods only` (`not confirmed`, `reversed`, or `answered in long blocks`) → the difference shows only when comparing different months or periods. Say «يظهر لما نقارن فترات مختلفة ويختفي داخل الشهر الواحد، فغالباً سببه شي ثاني تغيّر بنفس الوقت» — or, for `answered in long blocks`, «جوابك ثابت لشهور، فما نقدر نقارن إلا فترة بفترة». Never present it as a habit's effect and never build a recommendation on it.
   - `only inside the same month` → «إشارة محتملة» that whole-period differences were hiding.
-  - `too few values inside each month to check` → «إشارة محتملة» at most; `n/a (under 2 months of data)` → the check could not run, keep the verdict.
+  - `too few values inside each month to check` → «إشارة محتملة» at most; `n/a (under 2 months of data)` → the check could not run, keep the verdict. With fewer than 14 days of data, nothing is above «إشارة محتملة».
 - **Answered in long blocks.** The Journal table's "Answer changes" column counts how often an answer flipped. When it is small, the comparison is really before-versus-after a few dates: find the switch dates in `daily_enriched.csv` and check what else happened then (a stress episode, travel, a wear gap, Ramadan) and say so. To truly test such a habit, suggest switching it on and off in blocks of 2–3 weeks while logging it in the Journal.
 - **Real units and counts.** Pattern (Arabic example; same structure in any language): «في [N] ليلة نمت فيها أقل من [H] ساعات كان الريكفري [X]% بالمتوسط، مقابل [Y]% لما نمت [H2] ساعات». Fill it only with this user's numbers from the Effect column, the band tables and the Journal table. Say what each comparison is against: "yes vs no" compares with all other days; section 10's activity table compares with rest days and is descriptive only.
 - **Correlation is not proof.** Say «يرتبط» / «يصير معه» ("goes with") in the user's language. Say «غالباً بسبب» ("likely because") only for well-established physiology: short sleep → lower HRV, a hard day → lower Recovery next morning, illness → higher resting HR and breathing rate, a late meal → higher night heart rate.
@@ -127,7 +176,7 @@ It writes to `whoop_out/`: `summary.md` (every computed number, 15 sections), `c
 
 Tone: clear, warm and direct, in the user's own register (in Arabic a light Gulf flavour is fine). Keep WHOOP's terms as the user's app shows them (Recovery, HRV, Strain…) and explain each in the user's language the first time. Round sensibly. Every number gets: the value → what it means → how it compares with the user's own normal (and WHOOP's band when there is one). Short paragraphs, small tables, no number repeated without a reason.
 
-Use these sections in this order (Arabic names below, English names in «Language»; other languages translate them). Every section of `summary.md` must land somewhere; if one has nothing notable, say so in a line instead of skipping it.
+Use these sections in this order (Arabic names below, English names in «Language»; other languages translate them). Every section of `summary.md` and every item of the checklist in section 3a must land somewhere; if one has nothing notable, say so in a line instead of skipping it.
 
 | Report section | Built from `summary.md` |
 |---|---|
@@ -151,7 +200,7 @@ Use these sections in this order (Arabic names below, English names in «Languag
 
 - **The full report** (all 13 sections) goes into a document the user can keep: use the environment's document or artifact type if it has one; otherwise build one self-contained HTML file (`lang` set to the user's language, `dir="rtl"` for right-to-left languages, charts embedded as base64 images) and share it.
 - **The visual brief** (section 7) goes with every full report: send `brief.png`, plus `brief.pdf` when they want to print or forward it.
-- **The profile page** for the morning check (section 8): add `name` and the plan's actions as short lines (`plan`) to `profile.json`, drop personal journal questions from its `habits`, run `python3 insights.py --out whoop_out --page`, and publish `profile.html` as a private artifact with the page's own title (it starts with «WHOOP», for example «WHOOP — ملفي الأساسي (<name>)» or «WHOOP - My baseline (<name>)»); when one already exists (an artifact whose title starts with WHOOP and whose page holds `<script id="whoop-profile">`), republish that one instead of making another. Tell the user in one line that the morning check reads it.
+- **The profile page** for the morning check (section 8) is saved only after the user says yes: ask once, in one line, saying that it keeps their averages in a private page in their own Claude account so the morning check can read them later. On a yes: add `name` and the plan's actions as short lines (`plan`) to `profile.json`, drop personal journal questions from its `habits`, run `python3 insights.py --out whoop_out --page`, and publish `profile.html` as a private artifact with the page's own title (it starts with «WHOOP», for example «WHOOP — ملفي الأساسي (<name>)» or «WHOOP - My baseline (<name>)»); when one already exists (an artifact whose title starts with WHOOP and whose page holds `<script id="whoop-profile">`), republish that one instead of making another. Tell the user in one line that the morning check reads it.
 - **Charts:** when the document can draw live charts from data rows, give it the rows for the 2–3 charts that carry the main findings (for example Recovery by hours-asleep band, the monthly HRV line split by wear period) instead of PNGs; otherwise embed the engine's PNGs. The engine's charts have English titles; describe each one in the user's language by what it shows.
 - **The chat reply stays short:** the one-minute summary and the action plan («الخلاصة في دقيقة» and «خطتك العملية» in Arabic), the single strongest pattern from `insights.md` in one line with the user's numbers (the thing the WHOOP app would not have told them), plus one line pointing to the full report and the briefs. If no document or file can be created at all, put the full report in the reply instead.
 - **Check before handing over:** every number in the report against `summary.md` or code — ideally by a second agent that did not write the report.
@@ -189,16 +238,22 @@ When the user sends a screenshot of today's WHOOP screen, or asks «فحص ال�
    - Today against their normal (Arabic example): «ريكفري اليوم 48% — أقل من معدلك (56%)» with WHOOP's colour word; HRV and resting HR the same way when visible. Inside their usual range (`p25`–`p75`) is normal.
    - Why: from what is visible plus their own patterns in the profile — last night's hours against their sweet spot, a second short night in a row, a short night two days ago, a clear journal habit (ask only when one fits and they have not said: «أكلت متأخر أمس؟»). Use the evidence words; never invent a cause.
    - Today's plan: effort by colour — green: a hard session is fine; yellow: moderate (Day Strain about 10–13); red: light (under 10). Tonight's bedtime from their plan, or the time that gives their sweet-spot hours before their usual wake time, and the last meal 3 hours before it when late eating is one of their clear habits.
+   - When the profile has `hrv_balance`: today's HRV against their 28-day level (`base28`), above or below and by how many ms.
    - One line from their own data that makes it concrete, for example «ثالث ليلة قصيرة ورا بعض عندك تنزل الريكفري لـ32%».
 4. «Health and safety» applies; never diagnose. No report, brief or file for a morning check unless they ask.
 
 ## 9. Quick questions
 
-When the user asks one focused question («ليش الريكفري اليوم أحمر؟», "does coffee affect my sleep?", in any language), still run the engine on all their data, answer that question first in a few sentences with their own numbers and the evidence words, then offer the full report and the visual brief in one line. For "today", use the morning check (section 8).
+When the user asks one focused question («ليش الريكفري اليوم أحمر؟», "does coffee affect my sleep?", in any language), still run the engine on all their WHOOP data (section 3b for another device), answer that question first in a few sentences with their own numbers and the evidence words, then offer the full report and the visual brief in one line. For "today", use the morning check (section 8).
 
 ## 10. Health and safety
 
 WHOOP is a wellness device, not a diagnostic one, so do not diagnose. Calmly suggest checking with a doctor only when: blood oxygen is under 90% on repeated nights (scattered single nights are often a loose strap — say so), resting HR stays 5+ bpm above normal while the user feels unwell, or stress episodes come with symptoms the user mentions. Do not set calorie or body-weight targets.
+
+- **Blood-oxygen ladder:** 95–100% is the usual range. Nights under 94% are counted and described, always with the loose-strap sentence and never as an alert (they never go in the brief's `alerts`). Only under 90% on repeated nights brings the calm suggestion to see a doctor. Wrist and ring sensors are approximate, and less reliable on a loose strap, on cold skin and on darker skin.
+- **Personal circumstances:** when the user mentions pregnancy, heart or blood-pressure medication, a diagnosed sleep or heart condition, or being under 18, say that their normal ranges can differ from the typical ones and that changes to sleep or training belong with their doctor. Keep the plan to sleep timing and logging.
+- **Days without data** are often the hardest ones (travel, illness, late nights). When gaps are frequent, say that the averages may look better than the real week.
+- The not-a-diagnosis sentence appears in every language the report is written in.
 
 ## 11. Glossary — use these explanations (Arabic master; in any other language give the same meaning, numbers and bands)
 
@@ -222,6 +277,16 @@ WHOOP is a wellness device, not a diagnostic one, so do not diagnose. Calmly sug
 - **رافعة (Leverage point):** تغيير واحد في يومك نتوقع منه أكبر فرق في الريكفري، محسوب من أثره داخل نفس الشهر × كم ينقصك منه في آخر 30 يوم. الرقم تقدير مو وعد.
 - **تظهر بين الفترات فقط:** الفرق يبين لما نقارن شهور أو فترات مختلفة وما يثبت داخل الشهر الواحد، فغالباً سببه شي ثاني تغيّر بنفس الوقت.
 
+## 12. Privacy
+
+The user's export is health data. It stays in the user's own session:
+
+- The scripts read local files and write local files. They send nothing anywhere. The only network use is `brief.py` downloading a font package, and `--no-fetch` skips even that.
+- Never publish, post, email or upload the user's data, report, brief or profile to any public or shared place (a repository, a gist, a public or shared page, a chat channel), and never put their numbers in an example, a demo or a bug report. Demos use synthetic data only.
+- Anything saved outside the session (the report document, the profile page) is private to the user, and the profile page is created only on their yes (section 6). Never change who can see it.
+- Do not write the user's health numbers, conditions or Journal answers to any long-term memory or notes.
+- When the user asks to delete their data, delete the output folder and tell them which saved pages exist so they can remove them.
+
 ## Scripts
 
-`scripts/whoop.py` (engine v1.2), `scripts/insights.py` (insights v1.3), `scripts/brief.py` (brief v1.3). Section 2 copies them into the working folder.
+`scripts/whoop.py` (engine v1.2), `scripts/insights.py` (insights v1.4), `scripts/brief.py` (brief v1.3). Section 2 copies them into the working folder.
