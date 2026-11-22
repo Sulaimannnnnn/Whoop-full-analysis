@@ -200,7 +200,7 @@ Use these sections in this order (Arabic names below, English names in «Languag
 
 - **The full report** (all 13 sections) goes into a document the user can keep: use the environment's document or artifact type if it has one; otherwise build one self-contained HTML file (`lang` set to the user's language, `dir="rtl"` for right-to-left languages, charts embedded as base64 images) and share it.
 - **The visual brief** (section 7) goes with every full report: send `brief.png`, plus `brief.pdf` when they want to print or forward it.
-- **The profile page** for the morning check (section 8): add `name` and the plan's actions as short lines (`plan`) to `profile.json`, drop personal journal questions from its `habits`, run `python3 insights.py --out whoop_out --page`, and publish `profile.html` as a private artifact with the page's own title (it starts with «WHOOP», for example «WHOOP — ملفي الأساسي (<name>)» or «WHOOP - My baseline (<name>)»); when one already exists (an artifact whose title starts with WHOOP and whose page holds `<script id="whoop-profile">`), republish that one instead of making another. Tell the user in one line that the morning check reads it.
+- **The profile page** for the morning check (section 8) is saved only after the user says yes: ask once, in one line, saying that it keeps their averages in a private page in their own Claude account so the morning check can read them later. On a yes: add `name` and the plan's actions as short lines (`plan`) to `profile.json`, drop personal journal questions from its `habits`, run `python3 insights.py --out whoop_out --page`, and publish `profile.html` as a private artifact with the page's own title (it starts with «WHOOP», for example «WHOOP — ملفي الأساسي (<name>)» or «WHOOP - My baseline (<name>)»); when one already exists (an artifact whose title starts with WHOOP and whose page holds `<script id="whoop-profile">`), republish that one instead of making another. Tell the user in one line that the morning check reads it.
 - **Charts:** when the document can draw live charts from data rows, give it the rows for the 2–3 charts that carry the main findings (for example Recovery by hours-asleep band, the monthly HRV line split by wear period) instead of PNGs; otherwise embed the engine's PNGs. The engine's charts have English titles; describe each one in the user's language by what it shows.
 - **The chat reply stays short:** the one-minute summary and the action plan («الخلاصة في دقيقة» and «خطتك العملية» in Arabic), the single strongest pattern from `insights.md` in one line with the user's numbers (the thing the WHOOP app would not have told them), plus one line pointing to the full report and the briefs. If no document or file can be created at all, put the full report in the reply instead.
 - **Check before handing over:** every number in the report against `summary.md` or code — ideally by a second agent that did not write the report.
@@ -276,6 +276,16 @@ WHOOP is a wellness device, not a diagnostic one, so do not diagnose. Calmly sug
 - **داخل نفس الشهر:** نقارن أيامك ببعض في الشهر نفسه، عشان التغيّرات البطيئة (روتين، موسم، جهاز جديد) ما تصنع علاقة مو موجودة.
 - **رافعة (Leverage point):** تغيير واحد في يومك نتوقع منه أكبر فرق في الريكفري، محسوب من أثره داخل نفس الشهر × كم ينقصك منه في آخر 30 يوم. الرقم تقدير مو وعد.
 - **تظهر بين الفترات فقط:** الفرق يبين لما نقارن شهور أو فترات مختلفة وما يثبت داخل الشهر الواحد، فغالباً سببه شي ثاني تغيّر بنفس الوقت.
+
+## 12. Privacy
+
+The user's export is health data. It stays in the user's own session:
+
+- The scripts read local files and write local files. They send nothing anywhere. The only network use is `brief.py` downloading a font package, and `--no-fetch` skips even that.
+- Never publish, post, email or upload the user's data, report, brief or profile to any public or shared place (a repository, a gist, a public or shared page, a chat channel), and never put their numbers in an example, a demo or a bug report. Demos use synthetic data only.
+- Anything saved outside the session (the report document, the profile page) is private to the user, and the profile page is created only on their yes (section 6). Never change who can see it.
+- Do not write the user's health numbers, conditions or Journal answers to any long-term memory or notes.
+- When the user asks to delete their data, delete the output folder and tell them which saved pages exist so they can remove them.
 
 ## Scripts
 

@@ -102,7 +102,7 @@ Python 3 with `pandas` and `numpy`. Optional: `scipy`, `matplotlib` (charts), `p
 
 ### Privacy
 
-This repository contains no health data. Your export is analysed inside your own Claude session.
+This repository contains no health data. Your export is analysed inside your own Claude session. The scripts send nothing anywhere (the only download is a font), nothing is posted or shared, and your averages are kept in a private page only if you say yes.
 
 ### Disclaimer
 
@@ -197,7 +197,7 @@ npx skills add Sulaimannnnnn/Whoop-full-analysis
 
 ### الخصوصية وإخلاء المسؤولية
 
-المستودع ما فيه أي بيانات صحية، وبياناتك تُحلَّل داخل جلستك فقط. مشروع مستقل غير تابع لشركة WHOOP. WHOOP جهاز عافية لا جهاز تشخيص، والمهارة لا تشخّص ولا تغني عن الطبيب، وتقترح مراجعته في حالات محددة فقط مثل أكسجين دم تحت 90% في ليالي متكررة. العلاقات ارتباطات من بياناتك لا إثبات سببية، والروافع تقديرات لا وعود.
+المستودع ما فيه أي بيانات صحية، وبياناتك تُحلَّل داخل جلستك فقط. السكربتات ما ترسل شي لأي مكان (التنزيل الوحيد خط للكتابة)، وما ينشر أو يُشارك شي، ومعدلاتك ما تنحفظ في صفحة خاصة إلا إذا وافقت. مشروع مستقل غير تابع لشركة WHOOP. WHOOP جهاز عافية لا جهاز تشخيص، والمهارة لا تشخّص ولا تغني عن الطبيب، وتقترح مراجعته في حالات محددة فقط مثل أكسجين دم تحت 90% في ليالي متكررة. العلاقات ارتباطات من بياناتك لا إثبات سببية، والروافع تقديرات لا وعود.
 
 ---
 
